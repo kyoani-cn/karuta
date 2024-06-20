@@ -4,10 +4,39 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>京阿尼歌牌</title>
+	<link rel="stylesheet" href="karuta.css">
 </head>
 <body>
 	<div class="app">
-		
+		<div class="progress-box">
+			<div class="progress-bar" :style="`width:${remainTime/(duration + 1) * 100}%`">{{remainTime}}</div>
+		</div>
+		<div class="head">
+			<div class="num-item remain-card-num">
+				<div class="num">{{remainNumber}}</div>
+				<div class="text">剩余卡牌</div>
+			</div>
+			<div class="num-item remain-time">
+				<div class="num">{{remainTime}}s</div>
+				<div class="text">剩余时间</div>
+			</div>	
+		</div>
+		<div class="karutas-box">
+			<div class="karuta-item"
+				v-for="karuta,index in karutas" 
+				:key="index" 
+				:data-index="index"
+				:data-value="karuta"
+				:data-selected="currentSelectedIndexes.includes(index)"
+				:data-completed="completedKarutaIndexes.includes(index)"
+				@click="selectKaruta(index)">
+				<svg viewbox="0 0 4 5" :class="`karuta-image-${karuta}`"></svg>
+			</div>
+		</div>
+		<div class="foot">
+			<a class="btn" @click="startGame()">开始游戏！</a>
+			<a class="btn" @click="startGame()">再来一次！</a>
+		</div>
 	</div>
 	<script src="vue.2.6.11.min.js"></script>
 	<script src="karuta.js"></script>
