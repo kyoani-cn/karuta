@@ -2,6 +2,9 @@ const generateOneKarutaByRandom = ()=>{
 	return Math.floor(Math.random() * 10);
 }
 
+const localStorageKey = 'kyoani-karuta-win-count';
+
+let winCount = +localStorage.getItem(localStorageKey) || 0;
 
 const generateKaruta16ByRandom = ()=>{
 	let karutas = [
@@ -31,6 +34,7 @@ const app = new Vue({
 		timer: null,
 		status: 'ready',
 		isWin: null,
+		winCount,
 
 		usedTime: 0,
 		remainTime: 0,
@@ -102,17 +106,25 @@ const app = new Vue({
 
 			this.confirmGameEnd();
 		},
-		startGame(){
+		reset(){
+
 			this.karutas = generateKaruta16ByRandom();
 			this.currentSelectedIndexes = [];
 			this.completedKarutaIndexes = [];
+			this.startUnixTime = 0;
+			this.usedTime = 0;
+			this.remainTime = this.duration - this.usedTime;
+			this.status = 'ready';
+			this.isWin = null;
+		},
+		startGame(){
+			this.reset();
 			this.startUnixTime = getUnixTime();
 
 
 			this.usedTime = 0;
 			this.remainTime = this.duration - this.usedTime;
 			
-			this.isWin = null;
 
 			setTimeout(()=>{
 				this.startTimer();
@@ -131,6 +143,11 @@ const app = new Vue({
 			clearInterval(this.timer);
 			this.status = 'end';
 			this.showResult(!!value);
+
+			if(value){
+				winCount++;
+				localStorage.setItem(localStorageKey, winCount);
+			}
 		},
 		showResult(value){
 

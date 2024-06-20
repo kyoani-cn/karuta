@@ -5,6 +5,10 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>京阿尼歌牌</title>
 	<link rel="stylesheet" href="karuta.css">
+
+	<script>
+		if(location.pathname=='/karuta') location.pathname = '/karuta/';
+	</script>
 </head>
 <body>
 	<div class="app" :data-status="status">
@@ -40,7 +44,7 @@
 		</div>
 		<div class="foot">
 			<!-- <a class="btn" @click="startGame()" v-if="status === 'ready'">开始游戏</a> -->
-			<a class="btn" @click="startGame()" v-if="status === 'end'">再来一次</a>
+			<a class="btn" @click="reset()" v-if="status === 'end'">再来一次</a>
 		</div>
 		<div class="settle-box" v-if="isWin!==null">
 			<div class="settle-content" v-if="isWin">
@@ -56,10 +60,19 @@
 					<img src="settle@2x.webp" alt="达成！">
 				</div>
 				<div class="foot">
-					<a class="btn" @click="startGame()">再来一次！</a>
+					<a class="btn" @click="reset()">再来一次！</a>
+				</div>
+			</div>
+			<div class="settle-content" v-else>
+				<div class="body">
+					<h2>未达成！</h2>
+				</div>
+				<div class="foot">
+					<a class="btn" @click="reset()">再来一次！</a>
 				</div>
 			</div>
 		</div>
+		<div class="win-count">{{winCount}}</div>
 	</div>
 	<script src="vue.2.6.11.min.js"></script>
 	<script src="karuta.js"></script>
