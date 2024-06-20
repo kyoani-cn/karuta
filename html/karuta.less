@@ -7,11 +7,19 @@ html{
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
 }
-
+body{
+	margin: 0;
+}
 .app{
 	max-width: 500px;
 	margin: 0 auto;
 }
+
+// 隐藏 iOS Safari 点击高亮
+.karuta-item{
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
 .progress-box{
 	margin: 8px 8px 0;
 	--progress-bar-height:  16px;
@@ -25,7 +33,7 @@ html{
 		font-size: 13px;
 		line-height: var(--progress-bar-height);
 		color:#FFF;
-		transition: width 1s linear;
+		// transition: width 1s linear;
 		min-width: 20px;
 		width: 100%;
 		&:after{
@@ -33,19 +41,28 @@ html{
 			margin-left: 1px;
 		}
 	}
+
+	transition: opacity 0.5s ease;
+	&[data-hide="true"]{
+		opacity: 0;
+	}
 }
 
 .head{
 	display: flex;
     justify-content: space-between;
-	padding: 8px;
+	padding: 6px 8px;
+	transition: opacity 0.5s ease;
+	opacity: 0;
 	.num-item{
 		.num{
 			font-weight: bold;
-			font-size: 24px;
+			font-size: 32px;
+			line-height: 40px;
 		}
 		.text{
-			font-size: 12px;
+			font-size: 14px;
+			line-height: 20px;
 			color:#999;
 		}
 	}
@@ -58,20 +75,138 @@ html{
 .karutas-box{
 	display:grid;
 	grid-template-columns: repeat(4, 1fr);
-	--karuta-margin: 4px;
+	--karuta-margin: 2px;
 	padding: var(--karuta-margin);
+
+	// 设定透视
+	perspective: 1200px;
+
+	transition: opacity .3s ease;
+
+
 	.karuta-item{
 		display: block;
 		margin: var(--karuta-margin);
 		cursor: pointer;
+		// 翻转
+		
+		position: relative;
+
+
 		svg{
+			pointer-events: none;
 			display: block;
-			border-radius: 4px;
 			background-color: #00B9D6;
 			background-size: cover;
+			box-shadow: 0 0 0 1px #F8F8F8;
+			border-radius: 4px;
+	
+			-webkit-backface-visibility: hidden;
+			backface-visibility: hidden;
+			transform: rotateY(0);
+			transition: transform 0.3s ease;
+		}
+		.front{
+			position: absolute;
+			width:100%;
+		}
+		.back{
+			width: 100%;
+			transform: rotateY(180deg);
 		}
 		&[data-completed]{
 			pointer-events: none;
+			.front{
+				transform: rotateY(180deg);
+			}
+			.back{
+				transform: rotateY(0);
+			}
+		}
+
+		&[data-selected]{
+			.front{
+				transform: rotateY(180deg);
+			}
+			.back{
+				transform: rotateY(0);
+			}
+		}
+	}
+}
+
+.app{
+	&[data-status="end"]{
+		.karutas-box{
+			pointer-events: none;
+			opacity: 0.3;
+		}
+	}
+	&[data-status="playing"]{
+		.progress-box{
+			.progress-bar{
+				transition: width 1s linear;
+			}
+		}
+		.head{
+			opacity: 1;
+		}
+	}
+}
+
+.foot{
+	display: flex;
+    justify-content: center;
+	padding: 10px;
+}
+
+.btn{
+	font-size: 16px;
+	width: 140px;
+	line-height: 48px;
+	border-radius: 4px;
+	background:#00B9D6;
+	color:#FFF;
+	display: inline-block;
+	text-align: center;
+	margin: 10px;
+	cursor: pointer;
+}
+
+
+.settle-box{
+	background:#FFF;
+	position: fixed;
+	top:0;
+	left:0;
+	right:0;
+	bottom:0;
+	text-align: center;
+    display: flex;
+	align-content: center;
+    align-items: center;
+    justify-content: center;
+	.settle-content{
+		h2{
+			margin: 0;
+			font-size: 38px;
+			text-indent: 1em;
+			line-height: 80px;
+		}
+		.use-second-box{
+			font-size: 18px;
+			line-height: 30px;
+			.second-text{
+				.second-num{
+					font-size:1.6em;
+					font-weight: bold;
+				}
+			}
+		}
+		img{
+			display: block;
+			margin: 14px auto;
+			max-width: 100%;
 		}
 	}
 }

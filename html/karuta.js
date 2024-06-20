@@ -29,6 +29,12 @@ const app = new Vue({
 		duration: 60, // 单位秒
 		nowUnixTime: getUnixTime(),
 		timer: null,
+		status: 'ready',
+		isWin: null,
+
+		usedTime: 0,
+		remainTime: 0,
+
 	},
 	computed:{
 		locked(){
@@ -37,13 +43,18 @@ const app = new Vue({
 		remainNumber(){
 			return 16 - this.completedKarutaIndexes.length;
 		},
-		remainTime(){
-			let num = this.duration - Math.floor((this.nowUnixTime - this.startUnixTime) / 1000);
+		// usedTime(){
+		// 	return Math.ceil((this.nowUnixTime - this.startUnixTime) / 1000)
+		// },
+		// remainTime(){
+		// 	let num = this.duration - this.usedTime;
 
-			if(num < 0) num = 60;
+		// 	if(num <= 0) num = this.duration;
+
+		// 	if(num > this.duration) num = this.duration;
 			
-			return num;
-		}
+		// 	return num;
+		// }
 	},
 	methods: {
 		selectKaruta(index){
@@ -53,6 +64,10 @@ const app = new Vue({
 
 			if(this.currentSelectedIndexes.length >= 2){
 				return; // 如果已经有两张牌了那么不处理
+			}
+
+			if(this.status === 'ready'){
+				this.startGame();
 			}
 
 			this.currentSelectedIndexes.push(index);
@@ -81,17 +96,28 @@ const app = new Vue({
 				setTimeout(()=>{
 					this.currentSelectedIndexes = [];
 					this.lockedByUUIDs = this.lockedByUUIDs.filter(item => item !== uuid);
-				}, 1000);
+				}, 500);
 			}
 
+
+			this.confirmGameEnd();
 		},
 		startGame(){
 			this.karutas = generateKaruta16ByRandom();
 			this.currentSelectedIndexes = [];
 			this.completedKarutaIndexes = [];
 			this.startUnixTime = getUnixTime();
-			this.step();
-			this.startTimer();
+
+
+			this.usedTime = 0;
+			this.remainTime = this.duration - this.usedTime;
+			
+			this.isWin = null;
+
+			setTimeout(()=>{
+				this.startTimer();
+				this.status = 'playing';
+			},1)
 		},
 		startTimer(){
 			clearInterval(this.timer);
@@ -99,17 +125,36 @@ const app = new Vue({
 				app.step();
 			}, 200);
 		},
-		theEnd(){
+		theEnd(value){
 			this.endUnixTime = getUnixTime();
 			console.log('游戏结束');
 			clearInterval(this.timer);
+			this.status = 'end';
+			this.showResult(!!value);
+		},
+		showResult(value){
+
+			setTimeout(()=>{
+				this.isWin = value;
+			}, 0);
 		},
 		step(){
 			this.nowUnixTime = getUnixTime();
 
-			if(this.remainNumber <= 0){
-				this.theEnd();
+
+			this.usedTime = Math.ceil((this.nowUnixTime - this.startUnixTime) / 1000);
+			
+			this.remainTime = this.duration - this.usedTime;
+
+			if(this.usedTime >= this.duration){
+				this.theEnd(false);
 			}
+		},
+		confirmGameEnd(){
+			const { karutas, completedKarutaIndexes } = this;
+			if(karutas.length != completedKarutaIndexes.length) return;
+
+			this.theEnd(true);
 		}
 	},
 });
@@ -155,7 +200,7 @@ const fetchKarutaImages = async ()=>{
 
 		const blobURL = await canvasToBlobURL(canvas);
 
-		cssText	+= `.karuta-image-${i}{background-image:url(${blobURL});}`;
+		cssText	+= `svg[data-value="${i}"]{background-image:url(${blobURL});}`;
 		// console.log(i, blobURL);
 	}
 
